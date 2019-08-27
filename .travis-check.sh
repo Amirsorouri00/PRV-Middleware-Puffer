@@ -1,7 +1,7 @@
 #!/bin/bash -ex
 
-cd /home/user/puffer
-./fetch_submodules.py
+#cd /home/user/puffer
+#./fetch_submodules.py
 ./autogen.sh
 ./configure
 make -j3

@@ -30,14 +30,23 @@ int main(int argc, char * argv[])
     return EXIT_FAILURE;
   }
 
+  cerr << "video_canonicalizer:main():started." << endl;
+  
+
   string input_path = argv[1];
   string output_path= argv[2];
+  cerr << "video_canonicalizer:main():input_path=" + input_path + ", and \
+    output_path = " + output_path << endl;
+
 
   /* parse header of the input Y4M */
+  cerr << "video_canonicalizer:main():before running y4m_parser()." << endl;
   Y4MParser y4m_parser(input_path);
 
   if (not y4m_parser.is_interlaced()) {
     /* simply move video from input_path to output_path if not interlaced */
+    cerr << "video_canonicalizer:main():video_is_not_interlaced." << endl;
+
     fs::rename(input_path, output_path);
     return EXIT_SUCCESS;
   } else {
@@ -45,7 +54,8 @@ int main(int argc, char * argv[])
     vector<string> args {
       "ffmpeg", "-nostdin", "-hide_banner", "-loglevel", "panic", "-y",
       "-i", input_path, "-vf", "bwdif", "-threads", "1", output_path };
-
+      
+    cerr << "video_canonicalizer:main():before running ffmpeg command." << endl;
     ProcessManager proc_manager;
     int ret_code = proc_manager.run("ffmpeg", args);
 

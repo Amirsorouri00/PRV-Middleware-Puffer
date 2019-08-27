@@ -34,6 +34,8 @@ void run_video_canonicalizer(ProcessManager & proc_manager,
                              const fs::path & output_path,
                              vector<tuple<string, string>> & vwork)
 {
+  cerr << "run_pipline:run_video_canonicalizer():started." << endl;
+
   /* prepare directories */
   string src_dir = output_path / "working/video-raw";
   string dst_dir = output_path / "working/video-canonical";
@@ -51,6 +53,9 @@ void run_video_canonicalizer(ProcessManager & proc_manager,
   vector<string> args {
     notifier, src_dir, ".y4m", "--check", dst_dir, ".y4m", "--tmp", tmp_dir,
     "--exec", video_canonicalizer };
+  
+  cerr << "run_pipline:run_video_canonicalizer():before running video_canonicalizer()." << endl;
+
   proc_manager.run_as_child(notifier, args);
 }
 
@@ -59,6 +64,8 @@ void run_video_encoder(ProcessManager & proc_manager,
                        vector<tuple<string, string>> & vwork,
                        const VideoFormat & vf)
 {
+  cerr << "run_pipline:run_video_encoder():start." << endl;
+
   /* prepare directories */
   string base = vf.to_string() + "-" + "mp4";
   string src_dir = output_path / "working/video-canonical";
@@ -86,6 +93,8 @@ void run_video_fragmenter(ProcessManager & proc_manager,
                           vector<tuple<string, string>> & vready,
                           const VideoFormat & vf)
 {
+  cerr << "run_pipline:run_video_fragmenter():start." << endl;
+
   /* prepare directories */
   string working_base = vf.to_string() + "-" + "mp4";
   string ready_base = vf.to_string();
@@ -114,6 +123,8 @@ void run_ssim_calculator(ProcessManager & proc_manager,
                          vector<tuple<string, string>> & vready,
                          const VideoFormat & vf)
 {
+  cerr << "run_pipline:run_ssim_calculator():start." << endl;
+
   /* prepare directories */
   string working_base = vf.to_string() + "-" + "mp4";
   string ready_base = vf.to_string() + "-" + "ssim";
@@ -142,6 +153,7 @@ void run_audio_encoder(ProcessManager & proc_manager,
                        vector<tuple<string, string>> & awork,
                        const AudioFormat & af)
 {
+  cerr << "run_pipline:run_audio_encoder():start." << endl;
   /* prepare directories */
   string base = af.to_string() + "-" + "webm";
   string src_dir = output_path / "working/audio-raw";
@@ -169,6 +181,7 @@ void run_audio_fragmenter(ProcessManager & proc_manager,
                           vector<tuple<string, string>> & aready,
                           const AudioFormat & af)
 {
+  cerr << "run_pipline:run_audio_fragmenter():start." << endl;
   /* prepare directories */
   string working_base = af.to_string() + "-" + "webm";
   string ready_base = af.to_string();
@@ -196,6 +209,7 @@ void run_file_sender(ProcessManager & proc_manager,
                      const vector<tuple<string, string>> & ready,
                      const YAML::Node & config)
 {
+  cerr << "run_pipline:run_file_sender():start." << endl;
   string host = config["host"].as<string>();
   uint16_t port = config["port"].as<uint16_t>();
   fs::path dst_media_dir = config["media_dir"].as<string>();
@@ -220,6 +234,8 @@ void run_depcleaner(ProcessManager & proc_manager,
                     const vector<tuple<string, string>> & work,
                     const vector<tuple<string, string>> & ready)
 {
+  cerr << "run_pipline:run_depcleaner():start." << endl;
+
   string depcleaner = src_path / "cleaner/depcleaner";
   vector<string> args = {depcleaner};
 
@@ -250,6 +266,8 @@ void run_windowcleaner(ProcessManager & proc_manager,
                        const vector<tuple<string, string>> & ready,
                        const unsigned int clean_window_ts)
 {
+  cerr << "run_pipline:run_windowcleaner():start." << endl;
+
   string windowcleaner = src_path / "cleaner/windowcleaner";
 
   /* run notifier to start windowcleaner for each directory in ready/ */
@@ -265,6 +283,8 @@ void run_decoder(ProcessManager & proc_manager,
                  const fs::path & output_path,
                  const YAML::Node & config)
 {
+  cerr << "run_pipline:run_decoder():-> start." << endl;
+
   /* prepare directories */
   string video_raw = output_path / "working/video-raw";
   string audio_raw = output_path / "working/audio-raw";
@@ -275,7 +295,11 @@ void run_decoder(ProcessManager & proc_manager,
   }
 
   string decoder = src_path / "atsc/decoder";
+  cerr << "run_pipline:run_decoder():-> before parsing decoder_args from config." << endl;
+
   vector<string> decoder_args = split(config["decoder_args"].as<string>(), " ");
+
+  cerr << "run_pipline:run_decoder():-> after parsing decoder_args from config." << endl;
 
   vector<string> args { decoder, video_raw, audio_raw, "--tmp", tmp_raw };
   args.insert(args.begin() + 1, decoder_args.begin(), decoder_args.end());
@@ -287,6 +311,8 @@ void run_pipeline(ProcessManager & proc_manager,
                   const string & channel_name,
                   const YAML::Node & config)
 {
+  cerr << "run_pipline:run_pipeline():started." << endl;
+
   const auto & channel_config = config["channel_configs"][channel_name];
   vector<VideoFormat> vformats = channel_video_formats(channel_config);
   vector<AudioFormat> aformats = channel_audio_formats(channel_config);
@@ -301,16 +327,24 @@ void run_pipeline(ProcessManager & proc_manager,
   }
 
   /* create output directory if it does not exist */
+  cerr << "run_pipline:run_pipline():before directories creation." << endl;
+
   fs::create_directories(output_path);
 
   /* create a tmp directory for decoder to output raw media chunks */
   fs::create_directories(output_path / "tmp" / "raw");
 
+  cerr << "run_pipline:run_pipline():dirs are created -> run_video_canonicalizer()." << endl;
+
   /* run video_canonicalizer */
   run_video_canonicalizer(proc_manager, output_path, vwork);
 
+  cerr << "run_pipline:run_pipline():after run_video_canonicalizer()." << endl;
+
   for (const auto & vf : vformats) {
     /* run video encoder and video fragmenter */
+    cerr << "run_pipline:run_pipline():-> run_video_endoder/fragmenter()." << endl;
+
     run_video_encoder(proc_manager, output_path, vwork, vf);
     run_video_fragmenter(proc_manager, output_path, vready, vf);
 
@@ -320,12 +354,16 @@ void run_pipeline(ProcessManager & proc_manager,
 
   for (const auto & af : aformats) {
     /* run audio encoder and audio fragmenter */
+    cerr << "run_pipline:run_pipline():-> run_audio_endoder/fragmenter()." << endl;
+
     run_audio_encoder(proc_manager, output_path, awork, af);
     run_audio_fragmenter(proc_manager, output_path, aready, af);
   }
 
   if (config["remote_media_server"]) {
     /* run file_sender to transfer files in ready/ */
+    cerr << "run_pipline:run_pipline():-> run_file_sender()." << endl;
+
     run_file_sender(proc_manager, vready, config["remote_media_server"]);
     run_file_sender(proc_manager, aready, config["remote_media_server"]);
   }
@@ -379,33 +417,64 @@ int main(int argc, char * argv[])
     return EXIT_FAILURE;
   }
 
+  cerr << "run_pipline:main:before Config.yml Loading" << endl;
   /* load YAML configuration */
   string yaml_config = fs::absolute(argv[optind]);
+  cerr << "run_pipline:main:Config is@" + yaml_config << endl;
+  // YAML::Node config;
   YAML::Node config = YAML::LoadFile(yaml_config);
+  cerr << "run_pipline:main:Config Loaded." << endl;
+
+  cerr << "run_pipline:main:media_dir@config is=" + config["media_dir"].as<string>() + "." << endl;
 
   /* get the path of wrappers directory and notifier */
   src_path = fs::canonical(fs::path(
              roost::readlink("/proc/self/exe")).parent_path().parent_path());
   notifier = src_path / "notifier/notifier";
   media_dir = config["media_dir"].as<string>();
+  cerr << "run_pipline:main:media_dir@config is=" + media_dir.string() + "." << endl;
+  cerr << "run_pipline:main:src_path@config is=" + src_path.string() + "." << endl;
+  cerr << "run_pipline:main:notifier@config is=" + notifier + "." << endl;
 
   ProcessManager proc_manager;
 
-  set<string> channel_set = load_channels(config);
+  // set<string> channel_set = load_channels(config);
+
+  set<string> channel_set;
+
+  for (YAML::const_iterator it = config["channels"].begin();
+       it != config["channels"].end(); ++it) {
+    const string & channel_name = it->as<string>();
+
+    if (not config["channel_configs"][channel_name]) {
+      throw runtime_error("Cannot find details of channel: " + channel_name);
+    }
+
+    if (not channel_set.emplace(channel_name).second) {
+      throw runtime_error("Found duplicate channel: " + channel_name);
+    }
+  }
+
+  cerr << "run_pipline:main:Channels Are loaded." << endl;
+
+
   for (const auto & channel_name : channel_set) {
     /* run the encoding pipeline for channel_name */
     run_pipeline(proc_manager, channel_name, config);
   }
 
-  /* if logging is enabled */
-  if (config["enable_logging"].as<bool>()) {
-    fs::path monitoring_dir = src_path / "monitoring";
+  cerr << "run_pipline:main:before Logging." << endl;
 
-    /* report SSIMs, video chunk sizes, backlog sizes and .y4m.info files */
-    string file_reporter = monitoring_dir / "file_reporter";
-    vector<string> file_reporter_args { file_reporter, yaml_config };
-    proc_manager.run_as_child(file_reporter, file_reporter_args);
-  }
+
+  /* if logging is enabled */
+  // if (config["enable_logging"].as<bool>()) {
+  //   fs::path monitoring_dir = src_path / "monitoring";
+
+  //   /* report SSIMs, video chunk sizes, backlog sizes and .y4m.info files */
+  //   string file_reporter = monitoring_dir / "file_reporter";
+  //   vector<string> file_reporter_args { file_reporter, yaml_config };
+  //   proc_manager.run_as_child(file_reporter, file_reporter_args);
+  // }
 
   return proc_manager.wait();
 }

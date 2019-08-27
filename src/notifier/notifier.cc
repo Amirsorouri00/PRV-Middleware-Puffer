@@ -42,12 +42,15 @@ Notifier::Notifier(const string & src_dir,
     process_manager_(), inotify_(process_manager_.poller()),
     prefixes_()
 {
+  cerr << "notifier:notifyConstructor():start." << endl;
+
   /* check mode */
   if (dst_dir_opt and dst_ext_opt) {
     check_mode_ = true;
     dst_dir_ = *dst_dir_opt;
     dst_ext_ = *dst_ext_opt;
   }
+  cerr << "notifier:notifyConstructor():after first if and before second if." << endl;
 
   /* use default temporary directory if not specified */
   if (tmp_dir_opt) {
@@ -55,10 +58,13 @@ Notifier::Notifier(const string & src_dir,
   } else {
     tmp_dir_ = fs::temp_directory_path();
   }
+  cerr << "notifier:notifyConstructor():after second if and before add_watch()." << endl;
 
   /* watch moved-in files and run programs as child processes */
   inotify_.add_watch(src_dir_, IN_MOVED_TO,
     [this](const inotify_event & event, const string & path) {
+      cerr << "notifier:notifyConstructor():add_watch(): start." << endl;
+       
       /* only interested in regular files that are moved into the directory */
       if (not (event.mask & IN_MOVED_TO) or (event.mask & IN_ISDIR)) {
         return;
@@ -98,6 +104,8 @@ inline string Notifier::get_tmp_path(const string & prefix)
 
 void Notifier::run_as_child(const string & filename)
 {
+  cerr << "notifier:Notifier::run_as_child():started="<< endl;
+
   string prefix = fs::path(filename).stem();
 
   /* create arguments passed to program_ */
@@ -185,11 +193,14 @@ int main(int argc, char * argv[])
     print_usage(argv[0]);
     return EXIT_FAILURE;
   }
+  cerr << "notifier:main():started." << endl;
 
   /* parse arguments */
   int arg_idx = 1;
   string src_dir = argv[arg_idx++];
   string src_ext = argv[arg_idx++];
+  cerr << "notifier:main():src_dir=" + src_dir + ", and \
+    src_ext = " + src_ext << endl;
 
   optional<string> dst_dir_opt, dst_ext_opt;
   optional<string> tmp_dir_opt;
@@ -206,8 +217,11 @@ int main(int argc, char * argv[])
     if (opt_arg == "--check") {
       dst_dir_opt = argv[arg_idx++];
       dst_ext_opt = argv[arg_idx++];
+      cerr << "notifier:main():dst_dir_opt=" + *dst_dir_opt + ", and \
+        dst_ext_opt = " + *dst_ext_opt << endl;
     } else if (opt_arg == "--tmp") {
       tmp_dir_opt = argv[arg_idx++];
+      cerr << "notifier:main():tmp_dir_opt=" + *tmp_dir_opt << endl;
     } else if (opt_arg == "--exec") {
       break;
     }
@@ -216,6 +230,8 @@ int main(int argc, char * argv[])
   /* interested in any file extension */
   if (src_ext == ".") {
     /* --check is not allowed */
+    cerr << "notifier:main():interested in any file ext"<< endl;
+
     if (dst_dir_opt or dst_ext_opt) {
       cerr << "Error: --check is not allowed when src_ext is ." << endl;
       return EXIT_FAILURE;
@@ -225,11 +241,13 @@ int main(int argc, char * argv[])
   /* the remaining arguments should be <program> [program args] */
   string program = argv[arg_idx++];
 
+  cerr << "notifier:main():before prog emplace"<< endl;
   vector<string> prog_args;
   for (int i = arg_idx; i < argc; ++i) {
     prog_args.emplace_back(argv[i]);
   }
 
+  cerr << "notifier:main():before calling Notifier Cunstruction()"<< endl;
   Notifier notifier(src_dir, src_ext, dst_dir_opt, dst_ext_opt,
                     tmp_dir_opt, program, prog_args);
   notifier.process_existing_files();

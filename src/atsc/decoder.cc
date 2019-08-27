@@ -1580,6 +1580,8 @@ public:
 
 int main( int argc, char *argv[] )
 {
+  cerr << "Decoder:main(): start." << endl;
+
   try {
     if ( argc < 1 ) { /* for pedants */
       abort();
@@ -1617,6 +1619,7 @@ int main( int argc, char *argv[] )
       return EXIT_FAILURE;
     }
 
+
     /* NB: "1080i30" is the preferred notation in Poynton's books and "Video Demystified" */
     const unsigned int video_pid = stoi( argv[ optind++ ], nullptr, 0 );
     const unsigned int audio_pid = stoi( argv[ optind++ ], nullptr, 0 );
@@ -1627,6 +1630,9 @@ int main( int argc, char *argv[] )
     const string video_directory = argv[ optind++ ];
     const string audio_directory = argv[ optind++ ];
 
+    cerr << "Decoder:main(): arguments parsed and initialized." << endl;
+
+
     if ( audio_sample_overlap != opus_sample_overlap ) {
       throw runtime_error( "audio_sample_overlap must be " + to_string( opus_sample_overlap ) );
     }
@@ -1634,16 +1640,21 @@ int main( int argc, char *argv[] )
     shared_ptr<FileDescriptor> input;
     if ( tcp_addr.empty() ) {
       /* read from stdin if a remote address is not provided */
+      cerr << "Decoder:main(): remote address is not provided." << endl;
       input = make_shared<FileDescriptor>( STDIN_FILENO );
     } else {
+      cerr << "Decoder:main(): finding TCP Addr." << endl;
+
       auto idx = tcp_addr.find( ':' );
       string ip = tcp_addr.substr( 0, idx );
       uint16_t port = narrow_cast<uint16_t>( stoi( tcp_addr.substr( idx + 1 ) ) );
 
       input = make_shared<TCPSocket>();
+      cerr << "Decoder:main(): creating socket." << endl;
       auto sock = dynamic_pointer_cast<TCPSocket>( input );
+      cerr << "Decoder:main(): befor socket.connect()." << endl;
       sock->connect( { ip, port } );
-      cerr << "Connected to " << tcp_addr << endl;
+      cerr << "Decoder:main():Connected to " << tcp_addr << endl;
     }
 
     AudioVideoDecoder decoder { video_pid, audio_pid, params,
@@ -1652,6 +1663,7 @@ int main( int argc, char *argv[] )
                                 video_directory, audio_directory,
                                 timestamp_ms() };
 
+    cerr << "Decoder:main(): -> poller.add_action()." << endl;
     Poller poller;
     poller.add_action( { *input, Direction::In,
                          [&decoder, &input] {
@@ -1660,6 +1672,7 @@ int main( int argc, char *argv[] )
                            decoder.decode_audio();
                            return ResultType::Continue;
                          } } );
+    cerr << "Decoder:main(): after poller.add_action()." << endl;
 
     while ( true ) {
       const auto ret = poller.poll( 500 );
