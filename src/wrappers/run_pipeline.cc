@@ -284,6 +284,9 @@ void run_decoder(ProcessManager & proc_manager,
                  const YAML::Node & config)
 {
   cerr << "run_pipline:run_decoder():-> start." << endl;
+  cerr << "-------------------------------------------------------------------------1" << endl;
+  cerr << config << endl;
+  cerr << "-------------------------------------------------------------------------2" << endl;
 
   /* prepare directories */
   string video_raw = output_path / "working/video-raw";
@@ -444,10 +447,6 @@ int main(int argc, char * argv[])
   cerr << "run_pipline:main:notifier@config is=" + notifier + "." << endl;
 
   ProcessManager proc_manager;
-
-  vector<string> decoder_args = split(config["decoder_args"].as<string>(), " ");
-
-  cerr << "run_pipline:main:decoder_args " << config["decoder_args"] << endl;
 
   set<string> channel_set = load_channels(config);
 
