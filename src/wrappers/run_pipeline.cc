@@ -314,9 +314,12 @@ void run_pipeline(ProcessManager & proc_manager,
   cerr << "run_pipline:run_pipeline():started." << endl;
 
   const auto & channel_config = config["channel_configs"][channel_name];
+
+  cerr << "run_pipline:run_pipeline():channel_config[video]." << endl;
   vector<VideoFormat> vformats = channel_video_formats(channel_config);
   vector<AudioFormat> aformats = channel_audio_formats(channel_config);
-
+  cerr << "run_pipline:run_pipeline():after fucking yaml functions." << endl;
+  
   /* tuple<directory, extension> */
   vector<tuple<string, string>> vwork, awork;
   vector<tuple<string, string>> vready, aready;
@@ -426,6 +429,16 @@ int main(int argc, char * argv[])
   cerr << "run_pipline:main:Config Loaded." << endl;
 
   cerr << "run_pipline:main:media_dir@config is=" + config["media_dir"].as<string>() + "." << endl;
+  // cerr << config["channel_configs"]["abc"]["video"] << endl;
+  // for (const auto & res_node : config["channel_configs"]["abc"]["video"]) {
+  //   const string & res = res_node.first.as<string>();
+  //   cerr << "yaml:channel_video_formats(): vf is = " + res << endl;
+  //   const auto & crf_list = res_node.second;
+  //   for (const auto & crf_node : crf_list) {
+  //     const auto & vformat_str = res + "-" + crf_node.as<string>();
+  //     cerr << "yaml:channel_video_formats(): vf_str is = " + vformat_str << endl;
+  //   }
+  // }
 
   /* get the path of wrappers directory and notifier */
   src_path = fs::canonical(fs::path(
@@ -438,22 +451,11 @@ int main(int argc, char * argv[])
 
   ProcessManager proc_manager;
 
-  // set<string> channel_set = load_channels(config);
+  vector<string> decoder_args = split(config["decoder_args"].as<string>(), " ");
 
-  set<string> channel_set;
+  cerr << "run_pipline:main:decoder_args " << config["decoder_args"] << endl;
 
-  for (YAML::const_iterator it = config["channels"].begin();
-       it != config["channels"].end(); ++it) {
-    const string & channel_name = it->as<string>();
-
-    if (not config["channel_configs"][channel_name]) {
-      throw runtime_error("Cannot find details of channel: " + channel_name);
-    }
-
-    if (not channel_set.emplace(channel_name).second) {
-      throw runtime_error("Found duplicate channel: " + channel_name);
-    }
-  }
+  set<string> channel_set = load_channels(config);
 
   cerr << "run_pipline:main:Channels Are loaded." << endl;
 
@@ -467,14 +469,14 @@ int main(int argc, char * argv[])
 
 
   /* if logging is enabled */
-  // if (config["enable_logging"].as<bool>()) {
-  //   fs::path monitoring_dir = src_path / "monitoring";
+  if (config["enable_logging"].as<bool>()) {
+    fs::path monitoring_dir = src_path / "monitoring";
 
-  //   /* report SSIMs, video chunk sizes, backlog sizes and .y4m.info files */
-  //   string file_reporter = monitoring_dir / "file_reporter";
-  //   vector<string> file_reporter_args { file_reporter, yaml_config };
-  //   proc_manager.run_as_child(file_reporter, file_reporter_args);
-  // }
+    /* report SSIMs, video chunk sizes, backlog sizes and .y4m.info files */
+    string file_reporter = monitoring_dir / "file_reporter";
+    vector<string> file_reporter_args { file_reporter, yaml_config };
+    proc_manager.run_as_child(file_reporter, file_reporter_args);
+  }
 
   return proc_manager.wait();
 }

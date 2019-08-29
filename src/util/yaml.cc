@@ -1,5 +1,7 @@
 #include "yaml.hh"
 #include "util.hh"
+#include <iostream>
+#include <string>
 
 using namespace std;
 
@@ -25,11 +27,15 @@ set<string> load_channels(const YAML::Node & config)
 
 vector<VideoFormat> channel_video_formats(const YAML::Node & channel_config)
 {
+  // cerr << "yaml:channel_video_formats():started" << endl;
   set<VideoFormat> vformats;
 
   const auto & res_map = channel_config["video"];
+  // cerr << "yaml:channel_video_formats():channel_config[video] = "<< res_map << endl;
+
   for (const auto & res_node : res_map) {
     const string & res = res_node.first.as<string>();
+    // cerr << "yaml:channel_video_formats(): vf is = "<< res << endl;
 
     const auto & crf_list = res_node.second;
     for (const auto & crf_node : crf_list) {
@@ -45,6 +51,8 @@ vector<VideoFormat> channel_video_formats(const YAML::Node & channel_config)
 
 vector<AudioFormat> channel_audio_formats(const YAML::Node & channel_config)
 {
+  // cerr << "yaml:channel_audio_formats():started" << endl;
+
   set<AudioFormat> aformats;
 
   const auto & bitrate_list = channel_config["audio"];
