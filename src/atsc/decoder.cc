@@ -1582,8 +1582,9 @@ int main( int argc, char *argv[] )
 {
   cerr << "Decoder:main(): start." << endl;
 
-  try {
+  // try {
     if ( argc < 1 ) { /* for pedants */
+      cerr << "Decoder:main(): 1." << endl;
       abort();
     }
 
@@ -1609,24 +1610,33 @@ int main( int argc, char *argv[] )
         tcp_addr = optarg;
         break;
       default:
+        cerr << "Decoder:main(): 3." << endl;
         print_usage( argv[0] );
         return EXIT_FAILURE;
       }
     }
 
-    if ( optind != argc - 8 ) {
-      print_usage( argv[0] );
-      return EXIT_FAILURE;
-    }
+    // if ( optind != argc - 8 ) {
+    //     cerr << "Decoder:main(): 4." << endl;
+    //   print_usage( argv[0] );
+    //   return EXIT_FAILURE;
+    // }
 
 
     /* NB: "1080i30" is the preferred notation in Poynton's books and "Video Demystified" */
+        cerr << "Decoder:main(): 5." << endl;
     const unsigned int video_pid = stoi( argv[ optind++ ], nullptr, 0 );
+        cerr << "Decoder:main(): 6." << endl;
     const unsigned int audio_pid = stoi( argv[ optind++ ], nullptr, 0 );
+        cerr << "Decoder:main(): 7." << endl;
     const VideoParameters params { argv[ optind++ ] };
+        cerr << "Decoder:main(): 8." << endl;
     const unsigned int frames_per_chunk = stoi( argv[ optind++ ] );
+        cerr << "Decoder:main(): 9." << endl;
     const unsigned int audio_blocks_per_chunk = stoi( argv[ optind++ ] );
+        cerr << "Decoder:main(): 10." << endl;
     const unsigned int audio_sample_overlap = stoi( argv[ optind++ ] );
+        cerr << "Decoder:main(): 11." << endl;
     const string video_directory = argv[ optind++ ];
     const string audio_directory = argv[ optind++ ];
 
@@ -1685,10 +1695,10 @@ int main( int argc, char *argv[] )
       decoder.check_av_sync();
       decoder.enforce_wallclock_lag_limit();
     }
-  } catch ( const exception & e ) {
-    print_exception( argv[ 0 ], e );
-    return EXIT_FAILURE;
-  }
+  // } catch ( const exception & e ) {
+  //   print_exception( argv[ 0 ], e );
+  //   return EXIT_FAILURE;
+  // }
 
   return EXIT_SUCCESS;
 }

@@ -295,6 +295,10 @@ void run_decoder(ProcessManager & proc_manager,
   }
 
   string decoder = src_path / "atsc/decoder";
+  cerr << "config['decoder_args']" << endl;
+
+  cerr << config["decoder_args"].as<string>() << endl;
+
   cerr << "run_pipline:run_decoder():-> before parsing decoder_args from config." << endl;
 
   vector<string> decoder_args = split(config["decoder_args"].as<string>(), " ");
@@ -429,16 +433,6 @@ int main(int argc, char * argv[])
   cerr << "run_pipline:main:Config Loaded." << endl;
 
   cerr << "run_pipline:main:media_dir@config is=" + config["media_dir"].as<string>() + "." << endl;
-  // cerr << config["channel_configs"]["abc"]["video"] << endl;
-  // for (const auto & res_node : config["channel_configs"]["abc"]["video"]) {
-  //   const string & res = res_node.first.as<string>();
-  //   cerr << "yaml:channel_video_formats(): vf is = " + res << endl;
-  //   const auto & crf_list = res_node.second;
-  //   for (const auto & crf_node : crf_list) {
-  //     const auto & vformat_str = res + "-" + crf_node.as<string>();
-  //     cerr << "yaml:channel_video_formats(): vf_str is = " + vformat_str << endl;
-  //   }
-  // }
 
   /* get the path of wrappers directory and notifier */
   src_path = fs::canonical(fs::path(
