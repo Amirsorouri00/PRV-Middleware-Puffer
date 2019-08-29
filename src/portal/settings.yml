@@ -1,0 +1,48 @@
+enable_logging: false
+experiments: 
+  experiment: 
+    num_servers: 1
+portal_settings: 
+  allowed_hosts: 
+    - "127.0.0.1"
+    - localhost
+  debug: true
+  secret_key: ")wyvs7qkr$8njj=@h+mv)r36z+g=#zd-s&1mupqc+@t=77n^(x"
+postgres_connection: 
+  dbname: puffer
+  host: "127.0.0.1"
+  password: 123456
+  port: 5432
+  user: amir
+ws_base_port: 50041
+
+
+# port: 8081
+# max_buffer_s: 30	max_buffer_s: 30
+# max_inflight_s: 5	max_inflight_s: 10
+# max_ws_frame_b: 100000	max_ws_frame_b: 1000000
+# max_ws_queue_b: 100000	max_ws_queue_b: 10000000
+# channel:	channel:
+#   - tos	  - tos
+#   - tos-live
+# tos:	tos:
+#   live: false	  live: false
+#   input: tos/	  input: tos/
+#   video_codec: 'video/mp4; codecs="avc1.42E020"'	  video_codec: 'video/mp4; codecs="avc1.42E020"'
+#   audio_codec: 'audio/webm; codecs="opus"'	  audio_codec: 'audio/webm; codecs="opus"'
+#   init_vts: 0	  init_vts: 0
+# tos-live:
+#   live: true
+#   input: tos-live/
+#   video:
+#     1280x720: [20, 28]
+#     854x480: [20, 28]
+#   audio:
+#     - 128k
+#   timescale: 90000
+#   video_duration: 180000
+#   audio_duration: 432000
+#   video_codec: 'video/mp4; codecs="avc1.42E020"'
+#   audio_codec: 'audio/webm; codecs="opus"'
+#   presentation_delay_s: 10
+#   clean_window_s: 60
