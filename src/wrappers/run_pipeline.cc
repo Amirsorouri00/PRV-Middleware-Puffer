@@ -296,21 +296,19 @@ void run_decoder(ProcessManager & proc_manager,
   for (const auto & dir : {video_raw, audio_raw, tmp_raw}) {
     fs::create_directories(dir);
   }
-
   string decoder = src_path / "atsc/decoder";
-  cerr << "config['decoder_args']" << endl;
 
   cerr << config["decoder_args"].as<string>() << endl;
 
-  cerr << "run_pipline:run_decoder():-> before parsing decoder_args from config." << endl;
+  // cerr << "run_pipline:run_decoder():-> before parsing decoder_args from config." << endl;
 
   vector<string> decoder_args = split(config["decoder_args"].as<string>(), " ");
 
-  cerr << "run_pipline:run_decoder():-> after parsing decoder_args from config." << endl;
+  // cerr << "run_pipline:run_decoder():-> after parsing decoder_args from config." << endl;
 
   vector<string> args { decoder, video_raw, audio_raw, "--tmp", tmp_raw };
   args.insert(args.begin() + 1, decoder_args.begin(), decoder_args.end());
-
+  cerr << "************************size = " << args.size() << endl;
   proc_manager.run_as_child(decoder, args);
 }
 
@@ -458,18 +456,18 @@ int main(int argc, char * argv[])
     run_pipeline(proc_manager, channel_name, config);
   }
 
-  cerr << "run_pipline:main:before Logging." << endl;
+  // cerr << "run_pipline:main:before Logging." << endl;
 
 
   /* if logging is enabled */
-  if (config["enable_logging"].as<bool>()) {
-    fs::path monitoring_dir = src_path / "monitoring";
+  // if (config["enable_logging"].as<bool>()) {
+  //   fs::path monitoring_dir = src_path / "monitoring";
 
-    /* report SSIMs, video chunk sizes, backlog sizes and .y4m.info files */
-    string file_reporter = monitoring_dir / "file_reporter";
-    vector<string> file_reporter_args { file_reporter, yaml_config };
-    proc_manager.run_as_child(file_reporter, file_reporter_args);
-  }
+  //   /* report SSIMs, video chunk sizes, backlog sizes and .y4m.info files */
+  //   string file_reporter = monitoring_dir / "file_reporter";
+  //   vector<string> file_reporter_args { file_reporter, yaml_config };
+  //   proc_manager.run_as_child(file_reporter, file_reporter_args);
+  // }
 
   return proc_manager.wait();
 }

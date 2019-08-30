@@ -401,10 +401,12 @@ struct PESPacketHeader
   static uint8_t enforce_stream_id( const bool is_video, const uint8_t stream_id )
   {
     if ( is_video ) {
+      // cerr << "it is video and stream_id = " << to_string(stream_id) << endl;
       if ( (stream_id & 0xf0) != 0xe0 ) {
         throw StreamMismatch( "not an MPEG-2 video stream: " + to_string( stream_id ) );
       }
     } else {
+      // cerr << "NNNN it isn't video and stream_id = " << to_string(stream_id) << endl;
       if ( stream_id != 0xBD ) {
         throw StreamMismatch( "not an A/52 audio stream: " + to_string( stream_id ) );
       }
@@ -846,16 +848,19 @@ public:
   void parse( const string_view & packet, queue<TimestampedPESPacket> & PES_packets )
   {
     TSPacketHeader header { packet };
-
+    // cerr << "parse: packet = " << packet<<endl;
     if ( header.pid != pid_ ) {
+      // cerr << "parse and header pid = " << header.pid << "and pid = "<< pid_ << endl;
       return;
     }
+    cerr<<"hooooooooooraaaaa" << is_video_ << endl;
 
     if ( header.payload_unit_start_indicator ) {
       /* start of new PES packet */
 
       /* step 1: parse and decode old PES packet if there is one */
       if ( not PES_packet_.empty() ) {
+        cerr << "packet pes not empty"<< PES_packet_.empty() << is_video_ << endl;
         /* make sure PES_packet_ is cleared even if header parsers subsequently throw an exception */
         string PES_packet = move( PES_packet_ );
         PES_packet_.clear();
@@ -1446,9 +1451,11 @@ public:
   void parse_input( const string & new_chunk )
   {
     /* parse transport stream packets into video and audio PES packets */
+    // cerr<<"decoder:parse_input(): started"<<endl;
     input_buffer.append( new_chunk );
 
     if ( input_buffer.size() < ts_packet_length ) {
+      cerr<<"decoder:parse_input(): 1"<<endl;
       return;
     }
 
@@ -1473,6 +1480,8 @@ public:
 
   void decode_video()
   {
+    // cerr<<"decoder:decode_video(): started"<< video_PES_packets.empty() <<endl;
+
     while ( not video_PES_packets.empty() ) {
       try {
         TimestampedPESPacket PES_packet { move( video_PES_packets.front() ) };
@@ -1501,6 +1510,7 @@ public:
 
   void output_video()
   {
+    // cerr<<"decoder:output_video():"<<decoded_fields.empty()<<endl;
     while ( not decoded_fields.empty() ) {
       /* initialize audio and video outputs with earliest video field as first timestamp */
       if ( not outputs_initialized ) {
@@ -1582,7 +1592,7 @@ int main( int argc, char *argv[] )
 {
   cerr << "Decoder:main(): start." << endl;
 
-  // try {
+  try {
     if ( argc < 1 ) { /* for pedants */
       cerr << "Decoder:main(): 1." << endl;
       abort();
@@ -1616,27 +1626,30 @@ int main( int argc, char *argv[] )
       }
     }
 
-    // if ( optind != argc - 8 ) {
-    //     cerr << "Decoder:main(): 4." << endl;
-    //   print_usage( argv[0] );
-    //   return EXIT_FAILURE;
-    // }
+    if ( optind != argc - 8 ) {
+        cerr << "Decoder:main(): 4." << endl;
+      print_usage( argv[0] );
+      return EXIT_FAILURE;
+    }
 
 
     /* NB: "1080i30" is the preferred notation in Poynton's books and "Video Demystified" */
-        cerr << "Decoder:main(): 5." << endl;
+        // cerr << "Decoder:main(): 5."<< argv[ optind++ ] << endl;
     const unsigned int video_pid = stoi( argv[ optind++ ], nullptr, 0 );
-        cerr << "Decoder:main(): 6." << endl;
+
+        // cerr << "Decoder:main(): 6."<< argv[ optind++ ] << endl;
     const unsigned int audio_pid = stoi( argv[ optind++ ], nullptr, 0 );
-        cerr << "Decoder:main(): 7." << endl;
+
+        // cerr << "Decoder:main(): 7."<< argv[ optind++ ] << endl;
     const VideoParameters params { argv[ optind++ ] };
-        cerr << "Decoder:main(): 8." << endl;
+
+        // cerr << "Decoder:main(): 8."<< argv[ optind++ ] << endl;
     const unsigned int frames_per_chunk = stoi( argv[ optind++ ] );
-        cerr << "Decoder:main(): 9." << endl;
+        // cerr << "Decoder:main(): 9."<< argv[ optind++ ] << endl;
     const unsigned int audio_blocks_per_chunk = stoi( argv[ optind++ ] );
-        cerr << "Decoder:main(): 10." << endl;
+        // cerr << "Decoder:main(): 10."<< argv[ optind++ ] << endl;
     const unsigned int audio_sample_overlap = stoi( argv[ optind++ ] );
-        cerr << "Decoder:main(): 11." << endl;
+        // cerr << "Decoder:main(): 11."<< argv[ optind++ ] << endl;
     const string video_directory = argv[ optind++ ];
     const string audio_directory = argv[ optind++ ];
 
@@ -1687,18 +1700,19 @@ int main( int argc, char *argv[] )
     while ( true ) {
       const auto ret = poller.poll( 500 );
       if ( ret.result == Poller::Result::Type::Exit ) {
+        cerr << "Decoder:main(): poll timeout." << endl;
         return EXIT_SUCCESS;
       }
 
       decoder.output_video();
       decoder.output_audio();
-      decoder.check_av_sync();
-      decoder.enforce_wallclock_lag_limit();
+      // decoder.check_av_sync();
+      // decoder.enforce_wallclock_lag_limit();
     }
-  // } catch ( const exception & e ) {
-  //   print_exception( argv[ 0 ], e );
-  //   return EXIT_FAILURE;
-  // }
+  } catch ( const exception & e ) {
+    print_exception( argv[ 0 ], e );
+    return EXIT_FAILURE;
+  }
 
   return EXIT_SUCCESS;
 }

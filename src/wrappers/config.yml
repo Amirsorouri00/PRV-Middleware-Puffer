@@ -10,9 +10,7 @@ channel_configs:
     video:
       1280x720: [23, 25]
       854x480: [23, 25]
-      # 720p: [23, 25]
-      # 480p: [23, 25]
-    decoder_args: 123 456 1080i30 1000 1000 10248 . .
+    decoder_args: 240 189 1080i30 20 20 10248 --tcp 127.0.0.1:5000  
     
     audio:
       - 64k
@@ -26,4 +24,11 @@ channel_configs:
   #     - 32k
    
 # wrapper:run_pipeline and atsc:decoder
-# decoder_args: frames_per_chunk audio_blocks_per_chunk audio_sample_overlap video_output_dir audio_output_dir [--tmp TMP] [--tcp IP:PORT] format = \"1080i30\" | \"720p60\ --tmp TMP : output to TMP directory first and then move output chunks to video_output_dir or audio_output_dir --tcp IP:PORT : establish a TCP connection and read input from IP:PORT
+
+# "Usage: " << program_name << " video_pid audio_pid format "
+#   "frames_per_chunk audio_blocks_per_chunk audio_sample_overlap "
+#   "video_output_dir audio_output_dir [--tmp TMP] [--tcp IP:PORT]\n\n"
+#   "format = \"1080i30\" | \"720p60\"\n"
+#   "--tmp TMP : output to TMP directory first and then move output chunks "
+#   "to video_output_dir or audio_output_dir\n"
+#   "--tcp IP:PORT : establish a TCP connection and read input from IP:PORT"
