@@ -74,7 +74,8 @@ string postgres_connection_string(const YAML::Node & config)
   ret += " port=" + to_string(config["port"].as<uint16_t>());
   ret += " dbname=" + config["dbname"].as<string>();
   ret += " user=" + config["user"].as<string>();
-  ret += " password=" + safe_getenv(config["password"].as<string>());
+  ret += " password=" + config["password"].as<string>(); //safe_getenv(config["password"].as<string>());
+  // ret += " password=" + safe_getenv(config["password"].as<string>());
 
   if (config["sslmode"]) {
     ret += " sslmode=" + config["sslmode"].as<string>();

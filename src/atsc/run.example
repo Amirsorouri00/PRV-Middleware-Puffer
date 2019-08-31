@@ -1,0 +1,11 @@
+./decoder 1 10 1080i30 256 512 10248 /home/amirsorouri00/Desktop/puffer_new/media_dir/abc/working/video-raw /home/amirsorouri00/Desktop/puffer_new/media_dir/abc/working/audio-raw --tmp /home/amirsorouri00/Desktop/puffer_new/media_dir/abc/tmp/raw --tcp 127.0.0.1:5000
+
+
+ffmpeg -i v.mp4 -map 0:0 -map 0:1 -c:v mpeg2video -streamid 0:240 -c:a ac3 -f mpegts tcp://127.0.0.1:5000?listen
+
+ffmpeg -i v.mp4 -map 0:0 -map 0:1 -c:v mpeg2video -c:a ac3 -f mpegts tcp://127.0.0.1:5000?listen
+
+
+
+#important 
+ffmpeg -i gio.mp4 -map 0:v -c:v mpeg2video -streamid 0:0xf0 -map 0:a -streamid 1:0xBD -c:a ac3 -ar 48000 -f mpegts tcp://127.0.0.1:5000?listen

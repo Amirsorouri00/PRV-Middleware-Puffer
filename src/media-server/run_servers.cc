@@ -111,7 +111,8 @@ int run_maintenance_servers()
 int run_ws_media_servers()
 {
   ProcessManager proc_manager;
-
+  
+  cerr << "run_servers:run_ws_media_servers(): 1 " << endl;
   const bool enable_logging = config["enable_logging"].as<bool>();
 
   /* will run log reporters only if enable_logging is true */
@@ -123,6 +124,7 @@ int run_ws_media_servers()
   /* Remove ipc directory prior to starting Media Server */
   string ipc_dir = "pensieve_ipc";
   if (fs::exists(ipc_dir)) {
+    cerr << "run_servers:run_ws_media_servers(): -> removing pensieve_ipc dir " << endl;
     fs::remove_all(ipc_dir);
   }
 
@@ -131,17 +133,21 @@ int run_ws_media_servers()
   const auto & ws_media_server = src_path / "media-server/ws_media_server";
 
   int server_id = 0;
+  cerr << "run_servers:run_ws_media_servers(): 2 " << endl;
   for (const auto & expt : config["experiments"]) {
     /* convert YAML::Node to string */
-    stringstream ss;
-    ss << expt["fingerprint"];
-    string fingerprint = ss.str();
+    // cerr << "run_servers:run_ws_media_servers(): 3 \n" << expt << endl;
+    // stringstream ss;
+    // ss << expt["fingerprint"];
+    // string fingerprint = ss.str();
 
-    /* run expt_json.py to represent experimental settings as a JSON string */
-    string json_str = run(expt_json, {expt_json, fingerprint}, true).first;
+    // /* run expt_json.py to represent experimental settings as a JSON string */
+    // string json_str = run(expt_json, {expt_json, fingerprint}, true).first;
 
-    int expt_id = retrieve_expt_id(json_str);
-    unsigned int num_servers = expt["num_servers"].as<unsigned int>();
+    int expt_id = 1; //retrieve_expt_id(json_str);
+    // int expt_id = retrieve_expt_id(json_str);
+    unsigned int num_servers = 1; //expt["num_servers"].as<unsigned int>();
+    // unsigned int num_servers = expt["num_servers"].as<unsigned int>();
 
     cerr << "Running experiment " << expt_id << " on "
          << num_servers << " servers" << endl;
@@ -185,12 +191,13 @@ int main(int argc, char * argv[])
     print_usage(argv[0]);
     return EXIT_FAILURE;
   }
-
+  cerr << "run_servers:main(): 1 " << endl;
   /* save as global variables */
   yaml_config = fs::absolute(argv[1]);
   config = YAML::LoadFile(yaml_config);
   src_path = fs::canonical(fs::path(
       roost::readlink("/proc/self/exe")).parent_path().parent_path());
+  cerr << "run_servers:main(): 2 " << endl;
 
   /* simply run maintenance_server(s) */
   if (argc == 3) {
@@ -198,10 +205,11 @@ int main(int argc, char * argv[])
       print_usage(argv[0]);
       return EXIT_FAILURE;
     }
-
+    cerr << "run_servers:main(): -> run_maintenance_servers() " << endl;
     return run_maintenance_servers();
   }
 
   /* run ws_media_server(s) */
+  cerr << "run_servers:main(): -> run_ws_media_servers() " << endl;
   return run_ws_media_servers();
 }

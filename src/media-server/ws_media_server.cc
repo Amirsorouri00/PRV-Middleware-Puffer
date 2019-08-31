@@ -624,10 +624,14 @@ void create_channels(Inotify & inotify)
   for (const auto & channel_name : channel_set) {
     /* exceptions might be thrown from the lambda callbacks in the channel */
     try {
+      cerr << "ws_media_server:create_channels(): 1 " << endl;
+
       auto channel = make_shared<Channel>(
           channel_name, media_dir,
           config["channel_configs"][channel_name], inotify);
+      cerr << "ws_media_server:create_channels(): 2 " << endl;
       channels.emplace(channel_name, move(channel));
+      cerr << "ws_media_server:create_channels(): 3 " << endl;
     } catch (const exception & e) {
       cerr << "Error: exceptions in channel " << channel_name << ": "
            << e.what() << endl;

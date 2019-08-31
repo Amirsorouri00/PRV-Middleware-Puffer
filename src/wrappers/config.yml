@@ -32,3 +32,29 @@ channel_configs:
 #   "--tmp TMP : output to TMP directory first and then move output chunks "
 #   "to video_output_dir or audio_output_dir\n"
 #   "--tcp IP:PORT : establish a TCP connection and read input from IP:PORT"
+
+
+
+enable_logging: false
+log_dir : "/home/amirsorouri00/Desktop/puffer_new/log_dir"
+experiments: 
+  node1: 
+    num_servers: 1
+    fingerprint: 
+      cc: cubic
+      # cc: bbr
+      abr: fugu
+
+portal_settings: 
+  allowed_hosts: 
+    - "127.0.0.1"
+    - localhost
+  debug: true
+  secret_key: ")wyvs7qkr$8njj=@h+mv)r36z+g=#zd-s&1mupqc+@t=77n^(x"
+postgres_connection: 
+  dbname: puffer
+  host: "127.0.0.1"
+  password: 123456
+  port: 5432
+  user: amir
+ws_base_port: 50041
