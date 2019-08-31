@@ -624,7 +624,7 @@ void create_channels(Inotify & inotify)
   for (const auto & channel_name : channel_set) {
     /* exceptions might be thrown from the lambda callbacks in the channel */
     try {
-      cerr << "ws_media_server:create_channels(): 1 " << endl;
+      cerr << "ws_media_server:create_channels(): 1 " << config["channel_configs"][channel_name] << endl;
 
       auto channel = make_shared<Channel>(
           channel_name, media_dir,
@@ -719,6 +719,11 @@ int run_websocket_server(pqxx::nontransaction & db_work)
   cerr << "ws_media_server:run_websocket_server(): 6 " << endl;
   /* workaround using compiler macros (CXXFLAGS='-DNONSECURE') to create a
    * server with non-secure socket; secure socket is used by default */
+   cerr << "Launching non-secure WebSocket server on port " << port << endl;
+  if (not portal_debug) {
+    cerr << "Error in YAML config: 'debug' must be true in 'portal_settings'" << endl;
+    return EXIT_FAILURE;
+  }
   #ifdef NONSECURE
   cerr << "Launching non-secure WebSocket server on port " << port << endl;
   if (not portal_debug) {
@@ -726,13 +731,13 @@ int run_websocket_server(pqxx::nontransaction & db_work)
     return EXIT_FAILURE;
   }
   #else
-  server.ssl_context().use_private_key_file(config["ssl_private_key"].as<string>());
-  server.ssl_context().use_certificate_file(config["ssl_certificate"].as<string>());
-  cerr << "Launching secure WebSocket server on port " << port << endl;
-  if (portal_debug) {
-    cerr << "Error in YAML config: 'debug' must be false in 'portal_settings'" << endl;
-    return EXIT_FAILURE;
-  }
+  // server.ssl_context().use_private_key_file(config["ssl_private_key"].as<string>());
+  // server.ssl_context().use_certificate_file(config["ssl_certificate"].as<string>());
+  // cerr << "Launching secure WebSocket server on port " << port << endl;
+  // if (portal_debug) {
+  //   cerr << "Error in YAML config: 'debug' must be false in 'portal_settings'" << endl;
+  //   return EXIT_FAILURE;
+  // }
   #endif
 
   /* create Channels and mmap existing and newly created media files */
@@ -744,6 +749,7 @@ int run_websocket_server(pqxx::nontransaction & db_work)
     [&server, &db_work](const uint64_t connection_id, const WSMessage & ws_msg)
     {
       try {
+        cerr << "oooooooooooooooooooooooooo " << endl;
         WebSocketClient & client = clients.at(connection_id);
         client.set_last_msg_recv_ts(timestamp_ms());
 
@@ -854,12 +860,16 @@ int run_websocket_server(pqxx::nontransaction & db_work)
       }
     }
   );
-
+  cerr << "hereeeeee 1 " << endl;
   /* start a slow timer to perform some tasks */
   Timerfd slow_timer;
+  cerr << "hereeeeee 2 " << endl;
+
   start_slow_timer(slow_timer, server);
+  cerr << "hereeeeee 3 " << endl;
 
   slow_timer.start(1000, 1000);  /* slow timer fires every second */
+  cerr << "hereeeeee 4 " << endl;
 
   return server.loop();
 }

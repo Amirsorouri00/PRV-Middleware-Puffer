@@ -38,21 +38,21 @@ int main(int argc, char * argv[])
   WebSocketServer server {{ip, port}, "cubic"};
 
   const bool portal_debug = config["portal_settings"]["debug"].as<bool>();
-  #ifdef NONSECURE
+  // #ifdef NONSECURE
   cerr << "Launching non-secure maintenance server" << endl;
   if (not portal_debug) {
     cerr << "Error in YAML config: 'debug' must be true in 'portal_settings'" << endl;
     return EXIT_FAILURE;
   }
-  #else
-  server.ssl_context().use_private_key_file(config["ssl_private_key"].as<string>());
-  server.ssl_context().use_certificate_file(config["ssl_certificate"].as<string>());
-  cerr << "Launching secure maintenance server" << endl;
-  if (portal_debug) {
-    cerr << "Error in YAML config: 'debug' must be false in 'portal_settings'" << endl;
-    return EXIT_FAILURE;
-  }
-  #endif
+  // #else
+  // server.ssl_context().use_private_key_file(config["ssl_private_key"].as<string>());
+  // server.ssl_context().use_certificate_file(config["ssl_certificate"].as<string>());
+  // cerr << "Launching secure maintenance server" << endl;
+  // if (portal_debug) {
+  //   cerr << "Error in YAML config: 'debug' must be false in 'portal_settings'" << endl;
+  //   return EXIT_FAILURE;
+  // }
+  // #endif
 
   server.set_open_callback(
     [&server](const uint64_t connection_id)

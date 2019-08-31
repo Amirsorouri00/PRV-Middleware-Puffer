@@ -113,7 +113,7 @@ int run_ws_media_servers()
   ProcessManager proc_manager;
   
   cerr << "run_servers:run_ws_media_servers(): 1 " << endl;
-  const bool enable_logging = config["enable_logging"].as<bool>();
+  // const bool enable_logging = config["enable_logging"].as<bool>();
 
   /* will run log reporters only if enable_logging is true */
   auto log_reporter = src_path / "monitoring/log_reporter";
@@ -161,19 +161,19 @@ int run_ws_media_servers()
       proc_manager.run_as_child(ws_media_server, args);
 
       /* run log_reporter */
-      if (enable_logging) {
-        fs::path log_dir = config["log_dir"].as<string>();
+      // if (enable_logging) {
+      //   // fs::path log_dir = config["log_dir"].as<string>();
 
-        for (const auto & log_stem : log_stems) {
-          string log_format = log_dir / (log_stem + ".conf");
-          string log_path = log_dir / (log_stem + "." + to_string(server_id)
-                                       + ".log");
+      //   // for (const auto & log_stem : log_stems) {
+      //   //   string log_format = log_dir / (log_stem + ".conf");
+      //   //   string log_path = log_dir / (log_stem + "." + to_string(server_id)
+      //   //                                + ".log");
 
-          vector<string> log_args { log_reporter, yaml_config,
-                                    log_format, log_path };
-          proc_manager.run_as_child(log_reporter, log_args);
-        }
-      }
+      //   //   vector<string> log_args { log_reporter, yaml_config,
+      //   //                             log_format, log_path };
+      //   //   proc_manager.run_as_child(log_reporter, log_args);
+      //   }
+      // }
     }
   }
 
