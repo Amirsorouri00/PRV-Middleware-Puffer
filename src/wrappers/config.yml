@@ -11,7 +11,7 @@ channel_configs:
     video:
       1280x720: [23, 25]
       854x480: [23, 25]
-    decoder_args: 240 189 720p60 59.94 230400 10248 --tcp 127.0.0.1:5000  
+    decoder_args: 240 189 720p60 8 230400 10248 --tcp 127.0.0.1:5000  
     
     audio:
       - 64k
@@ -44,7 +44,7 @@ experiments:
     fingerprint: 
       cc: cubic
       # cc: bbr
-      abr: fugu
+      abr: mpc
 
 portal_settings: 
   allowed_hosts: 
