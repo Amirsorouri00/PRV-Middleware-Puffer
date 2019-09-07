@@ -1,5 +1,5 @@
 media_dir : "/home/aroot/Desktop/puffer/media_dir"
-enable_logging : true
+enable_logging : false
 
 channels: 
   - abc 
@@ -11,7 +11,7 @@ channel_configs:
     video:
       1280x720: [23, 25]
       854x480: [23, 25]
-    decoder_args: 240 189 720p60 8 230400 10248 --tcp 127.0.0.1:5000  
+    decoder_args: 240 189 720p60 120 900 10248 --tcp 127.0.0.1:5000  
     
     audio:
       - 64k

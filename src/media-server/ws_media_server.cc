@@ -30,11 +30,11 @@
 using namespace std;
 using namespace PollerShortNames;
 
-#ifdef NONSECURE
+// #ifdef NONSECURE
 using WebSocketServer = WebSocketTCPServer;
-#else
-using WebSocketServer = WebSocketSecureServer;
-#endif
+// #else
+// using WebSocketServer = WebSocketSecureServer;
+// #endif
 
 /* global variables */
 YAML::Node config;
@@ -442,9 +442,10 @@ void handle_client_init(WebSocketServer & server, WebSocketClient & client,
 {
   /* always set client's init_id when a client-init is received */
   client.set_init_id(msg.init_id);
-
+  cerr<< "ws_media_server: handle_lient init: 1 " << endl;
   /* invalid channel request */
   auto it = channels.find(msg.channel);
+  cerr<< "ws_media_server: handle_lient init: 2 " << endl;
   if (it == channels.end()) {
     send_server_error(server, client, ServerErrorMsg::Type::Unavailable);
     cerr << client.signature() << ": requested channel "
@@ -452,10 +453,12 @@ void handle_client_init(WebSocketServer & server, WebSocketClient & client,
     return;
   }
 
+  cerr<< "ws_media_server: handle_lient init: 3 " << endl;
   const auto channel = it->second;
 
   /* reply that the channel is not ready */
   if (not channel->ready_to_serve()) {
+  cerr<< "ws_media_server: handle_lient init: 4 " << endl;
     send_server_error(server, client, ServerErrorMsg::Type::Unavailable);
     cerr << client.signature() << ": requested channel "
          << msg.channel << " is not ready" << endl;
@@ -463,6 +466,7 @@ void handle_client_init(WebSocketServer & server, WebSocketClient & client,
   }
 
   /* record client-init */
+  cerr<< "ws_media_server: handle_lient init: 5 " << endl;
   if (enable_logging) {
     string log_line = to_string(timestamp_ms()) + "," + msg.channel
       + "," + server_id + ",init," + expt_id + "," + client.username() + ","
@@ -475,12 +479,18 @@ void handle_client_init(WebSocketServer & server, WebSocketClient & client,
     return;
   }
 
+  cerr<< "ws_media_server: handle_lient init: 6 " << endl;
   uint64_t init_vts = channel->init_vts().value();
+  // uint64_t init_ats = channel->init_ats().value();
+  cerr<< "ws_media_server: handle_lient init: 6 " << endl;
   uint64_t init_ats = channel->init_ats().value();
 
+  cerr<< "ws_media_server: handle_lient init: 7 " << endl;
+  // client.init_channel(channel, init_vts, init_ats);
   client.init_channel(channel, init_vts, init_ats);
   send_server_init(server, client, false /* initialize rather than resume */);
 
+  cerr<< "ws_media_server: handle_lient init: 8 " << endl;
   cerr << client.signature() << ": connection initialized" << endl;
 }
 
@@ -724,13 +734,13 @@ int run_websocket_server(pqxx::nontransaction & db_work)
     cerr << "Error in YAML config: 'debug' must be true in 'portal_settings'" << endl;
     return EXIT_FAILURE;
   }
-  #ifdef NONSECURE
+  // #ifdef NONSECURE
   cerr << "Launching non-secure WebSocket server on port " << port << endl;
   if (not portal_debug) {
     cerr << "Error in YAML config: 'debug' must be true in 'portal_settings'" << endl;
     return EXIT_FAILURE;
   }
-  #else
+  // #else
   // server.ssl_context().use_private_key_file(config["ssl_private_key"].as<string>());
   // server.ssl_context().use_certificate_file(config["ssl_certificate"].as<string>());
   // cerr << "Launching secure WebSocket server on port " << port << endl;
@@ -738,7 +748,7 @@ int run_websocket_server(pqxx::nontransaction & db_work)
   //   cerr << "Error in YAML config: 'debug' must be false in 'portal_settings'" << endl;
   //   return EXIT_FAILURE;
   // }
-  #endif
+  // #endif
 
   /* create Channels and mmap existing and newly created media files */
   Inotify inotify(server.poller());

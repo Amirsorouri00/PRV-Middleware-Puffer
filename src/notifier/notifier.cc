@@ -63,7 +63,7 @@ Notifier::Notifier(const string & src_dir,
   /* watch moved-in files and run programs as child processes */
   inotify_.add_watch(src_dir_, IN_MOVED_TO,
     [this](const inotify_event & event, const string & path) {
-      cerr << "notifier:notifyConstructor():add_watch(): start." << endl;
+      // cerr << "notifier:notifyConstructor():add_watch(): start." << endl;
        
       /* only interested in regular files that are moved into the directory */
       if (not (event.mask & IN_MOVED_TO) or (event.mask & IN_ISDIR)) {
@@ -104,7 +104,7 @@ inline string Notifier::get_tmp_path(const string & prefix)
 
 void Notifier::run_as_child(const string & filename)
 {
-  cerr << "notifier:Notifier::run_as_child():started="<< endl;
+  // cerr << "notifier:Notifier::run_as_child():started="<< endl;
 
   string prefix = fs::path(filename).stem();
 
@@ -193,7 +193,7 @@ int main(int argc, char * argv[])
     print_usage(argv[0]);
     return EXIT_FAILURE;
   }
-  cerr << "notifier:main():started." << endl;
+  // cerr << "notifier:main():started." << endl;
 
   /* parse arguments */
   int arg_idx = 1;
@@ -245,7 +245,7 @@ int main(int argc, char * argv[])
     prog_args.emplace_back(argv[i]);
   }
 
-  cerr << "notifier:main():before calling Notifier Cunstruction()" << endl;
+  // cerr << "notifier:main():before calling Notifier Cunstruction()" << endl;
   Notifier notifier(src_dir, src_ext, dst_dir_opt, dst_ext_opt,
                     tmp_dir_opt, program, prog_args);
   notifier.process_existing_files();

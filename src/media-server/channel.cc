@@ -92,8 +92,10 @@ Channel::Channel(const string & name, const fs::path & media_dir,
 optional<uint64_t> Channel::init_vts() const
 {
   if (live_) {
+    cerr << "channel: init_vts: live_ = " << live_ << endl;
     return live_edge();
   } else {
+    cerr << "channel: init_vts: live_ = " << live_ << endl;
     return init_vts_;
   }
 }
@@ -101,8 +103,10 @@ optional<uint64_t> Channel::init_vts() const
 optional<uint64_t> Channel::init_ats() const
 {
   if (not init_vts()) {
+    cerr << "channel: init_vts: not init_vts() = " << endl;
     return nullopt;
   } else {
+    cerr << "channel: init_vts: audio ts = "  << endl;
     return floor_ats(*init_vts());
   }
 }
@@ -119,7 +123,9 @@ uint64_t Channel::floor_ats(const uint64_t ts) const
 
 bool Channel::ready_to_serve() const
 {
+  // cerr << "available_, vts, ats, == " << available_ << endl;
   return available_ and init_vts() and init_ats();
+  // return available_;
 }
 
 bool Channel::vready_to_serve(const uint64_t ts) const
@@ -302,11 +308,13 @@ optional<uint64_t> Channel::live_edge() const
   /* init files are not ready */
   if (vinit_.size() != vformats_.size() or
       ainit_.size() != aformats_.size()) {
+    cerr << "channel: live_edge(): 1" << endl;
     return nullopt;
   }
 
   /* no video chunks or no audio chunks are ready */
   if (not vready_frontier_ or not aready_frontier_) {
+    cerr << "channel: live_edge(): 2" << endl;
     return nullopt;
   }
 

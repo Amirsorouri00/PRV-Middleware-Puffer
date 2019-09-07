@@ -64,8 +64,8 @@ int main(int argc, char * argv[])
   try {
     double ssim_val = stod(ssim_str);
     if (ssim_val >= -1 and ssim_val <= 1) {
-      cerr << "SSIM = " + ssim_str + " between " + video1 + " and " + video2
-           << endl;
+      // cerr << "SSIM = " + ssim_str + " between " + video1 + " and " + video2
+      //      << endl;
     } else {
       cerr << "Invalid SSIM value out of range: " + ssim_str << endl;
       return EXIT_FAILURE;
